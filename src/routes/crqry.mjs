@@ -1,9 +1,14 @@
 import S from 'fluent-json-schema'
-import CRdata, {crdataJsonSchema} from '../models/crdata_schema.mjs'
+//Mongoose Buffing mode cause esbuild bundle not connect //https://mongoosejs.com/docs/connections.html#buffering
+//import CRdata, {crdataJsonSchema} from '../models/crdata_schema.mjs'
+import mongoose from 'mongoose'
+import crdataSchema, {crdataJsonSchema} from '../models/crdata_schema.mjs'
 
 export const autoPrefix = '/crqry'
 
 export default async function crqry (fastify, opts, next) {
+    const conn = mongoose.createConnection(fastify.config.MONGO_CONNECT);
+    const CRdata = conn.model('crdata', crdataSchema, 'crdata');
     const cridSchemaObj = {
       type: 'object',
       properties: {
@@ -40,13 +45,13 @@ export default async function crqry (fastify, opts, next) {
         }
       }
     },
-    async (req, reply) => {
+    async function (req, reply) {
       let crids = uncaseArrMatch(req.params.id)
       const out = await
         CRdata.find({
           "CruiseBasicData.CruiseID": { $in: crids }
         })
-      await reply.code(200).send(out)
+      reply.code(200).send(out)
     })
 
     fastify.get('/', {
@@ -71,7 +76,7 @@ export default async function crqry (fastify, opts, next) {
         }
       }
     },
-    async (req, reply) => {
+    async function (req, reply) {
       const qstr = req.query
       let qry = {}
       if (typeof qstr.ship !== 'undefined') {
@@ -110,9 +115,8 @@ export default async function crqry (fastify, opts, next) {
       }
       fastify.log.info(JSON.stringify(qry))
 
-      const out = await
-        CRdata.find(qry)
-      await reply.code(200).send(out)
+      const out = await CRdata.find(qry)
+      reply.code(200).send(out)
     })
   next()
 }

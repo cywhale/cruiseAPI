@@ -13,12 +13,13 @@ const dbConnector = async (fastify, options) => {
                 const db = await mongoose.connect(options.url, {
                         useNewUrlParser: true,
                         useUnifiedTopology: true,
+                        //bufferCommands: false, //https://mongoosejs.com/docs/connections.html#buffering
                         //useCreateIndex: true #not supported after v6
                 })
 
                 fastify.decorate('mongo', db)
         } catch (error) {
-                console.error(error);
+                console.error(error)
         }
 }
 export default fp(dbConnector)

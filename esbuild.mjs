@@ -1,8 +1,12 @@
 import esbuild  from 'esbuild'
+import glob from 'tiny-glob' //https://github.com/davipon/fastify-esbuild/blob/main/esbuild.ts
 import { spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 //import esbuildPluginPino from 'esbuild-plugin-pino'
+
+;(async function () {
+  // Get all ts files
 
 let server
 let isDev = process.argv[2] === 'start'
@@ -26,8 +30,9 @@ let nodePrefixExcludePlugin = {
       }))
   }
 }
-/*
-let fileArray = []
+//keep plugins dir, the following works... but dynamic require make error?
+//esbuild `find src \\( -name '*.mjs' \\)` --platform=node --outdir=build --bundle --format=esm --minify --keep-names ",
+/*let fileArray = []
 const getFilesRecursively = (dir) => {
   const files = fs.readdirSync(dir)
   files.forEach((file) => {
@@ -40,12 +45,12 @@ const getFilesRecursively = (dir) => {
   })
 }
 getFilesRecursively('src')
-
 const entryPoints = fileArray.filter((file) => file.endsWith('.mjs'))
 */
-const entryPoints = ['src/index.mjs']
+const entryPoints = //['src/index.mjs']
+                    await glob('src/**/*.mjs', {filesOnly: false})
 esbuild.
-build({ logLevel: 'info',
+  build({ logLevel: 'info',
 	entryPoints: entryPoints,
 	outdir: 'build',
         format: 'esm',
@@ -63,9 +68,11 @@ build({ logLevel: 'info',
         outExtension: {
           ".js": ".mjs",
         },
+        keepNames: true,
 	watch: isDev && { onRebuild },
         plugins: [ //esbuildPluginPino({ transports: ['pino-pretty'] }),
                   nodePrefixExcludePlugin]
-})
-.finally(onRebuild)
-.catch(() => process.exit(1))
+  })
+  .finally(onRebuild)
+  .catch(() => process.exit(1))
+})()

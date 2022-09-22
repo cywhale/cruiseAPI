@@ -6,9 +6,9 @@
 	"main": "index.js",
 	"scripts": {
 		"dev": "nodemon src/index.mjs",
-		"start": "nodemon ./esbuild.mjs start",
-		"build": "nodemon ./esbuild.mjs build",
-		"prod": "nodemon ./build/index.mjs"
+		"start": "node ./esbuild.mjs start",
+		"build": "rm -rf build && node ./esbuild.mjs build",
+		"prod": "node ./build/index.mjs"
 	},
 	"keywords": [
 		"Marine Research Vessels",
@@ -37,6 +37,7 @@
 		"mongoose-schema-jsonschema": "^2.0.2"
 	},
 	"devDependencies": {
-		"nodemon": "^2.0.12"
+		"nodemon": "^2.0.12",
+		"tiny-glob": "^0.2.9"
 	}
 }

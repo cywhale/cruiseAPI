@@ -59,7 +59,8 @@ const crdataSchema = new Schema({
     Other: crFieldSchema
 }, { timestamps: true })
 
-const CRdata = mongoose.model('crdata', crdataSchema, 'crdata')
-export default CRdata
+//const CRdata = mongoose.model('crdata', crdataSchema, 'crdata')
+//export default CRdata
 export const crdataJsonSchema = crdataSchema.jsonSchema()
+export default crdataSchema
 //console.dir(crdataJsonSchema, { depth: null })
