@@ -8,7 +8,7 @@
 		"dev": "nodemon src/index.mjs",
 		"start": "node ./esbuild.mjs start",
 		"build": "rm -rf build && node ./esbuild.mjs build",
-		"prod": "node ./build/index.mjs"
+		"prod": "nodemon ./build/index.mjs"
 	},
 	"keywords": [
 		"Marine Research Vessels",
