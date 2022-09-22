@@ -29,6 +29,7 @@ async function xmlHandler (fastify, opts) {
       data.CruiseBasicData.StartDate = start
       data.CruiseBasicData.EndDate = end
     }
+    fastify.log.info("Upload " + part.filename + " at " + fastify.conf.timestamp)
     fastify.log.info(data)
     part.value = data
     await CRdata.create(data)

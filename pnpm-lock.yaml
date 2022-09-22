@@ -16,6 +16,7 @@ specifiers:
   fluent-json-schema: ^3.1.0
   fs: ^0.0.2
   mongoose: ^6.6.1
+  mongoose-schema-jsonschema: ^2.0.2
   nodemon: ^2.0.12
 
 dependencies:
@@ -34,6 +35,7 @@ dependencies:
   fluent-json-schema: 3.1.0
   fs: 0.0.2
   mongoose: 6.6.1
+  mongoose-schema-jsonschema: 2.0.2_mongoose@6.6.1
 
 devDependencies:
   nodemon: 2.0.20
@@ -930,6 +932,15 @@ packages:
       saslprep: 1.0.3
     dev: false
 
+  /mongoose-schema-jsonschema/2.0.2_mongoose@6.6.1:
+    resolution: {integrity: sha512-iZZrbDKhkudCWogrh13bAKeJTNe5tr3KNvKuYSFveJ9qRnWIF+RNq83UQFpwclIyyY6Vd5tbdRK7RF9JwIiABA==}
+    peerDependencies:
+      mongoose: ^5.0.0 || ^6.0.0
+    dependencies:
+      mongoose: 6.6.1
+      pluralize: 8.0.0
+    dev: false
+
   /mongoose/6.6.1:
     resolution: {integrity: sha512-hPDamnn6quL9TjIrOudqUS5sMilENmP/gfxoCIb+rDmlzawtM7+MVCAWrM9930fzD20N7qAema/zE9QIDuifhQ==}
     engines: {node: '>=12.0.0'}
@@ -1089,6 +1100,11 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       find-up: 3.0.0
+    dev: false
+
+  /pluralize/8.0.0:
+    resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
+    engines: {node: '>=4'}
     dev: false
 
   /process-warning/2.0.0:

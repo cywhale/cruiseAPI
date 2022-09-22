@@ -8,9 +8,9 @@ import mongoose from 'mongoose'
 const INT32_MAX = 0x7FFFFFFF;
 const INT32_MIN = -0x80000000;
 
-class Int32 extends mongoose.SchemaType {
+class Integer extends mongoose.SchemaType {
   constructor(key, options) {
-    super(key, options, 'Int32')
+    super(key, options, 'Integer')
   }
 
   /**
@@ -40,33 +40,33 @@ class Int32 extends mongoose.SchemaType {
   }
 }
 
-Int32.prototype.$conditionalHandlers =
+Integer.prototype.$conditionalHandlers =
   mongoose.Schema.Types.Number.prototype.$conditionalHandlers
 
-Int32.INT32_BSON_TYPE = 16
-Int32.INT32_MAX = INT32_MAX
-Int32.INT32_MIN = INT32_MIN
+Integer.INT32_BSON_TYPE = 16
+Integer.INT32_MAX = INT32_MAX
+Integer.INT32_MIN = INT32_MIN
 
-Int32.instance = 'Int32'
+Integer.instance = 'Integer'
 
-//module.exports = Int32
+//module.exports = Integer
 export function loadType(mongoose) {
   //if (mongoose == null) {
   //  mongoose = require('mongoose');
   //}
   if (mongoose.Schema && typeof mongoose.Schema.Types === 'object') {
-	  mongoose.Schema.Types.Int32 = Int32
+	  mongoose.Schema.Types.Integer = Integer
   }
 
   if (typeof mongoose.SchemaTypes === 'object') {
-	  mongoose.SchemaTypes.Int32 = Int32
+	  mongoose.SchemaTypes.Integer = Integer
   }
 
   if (typeof mongoose.Types === 'object') {
-	  mongoose.Types.Int32 = Int32
+	  mongoose.Types.Integer = Integer
   }
 
-  return Int32
+  return Integer
 }
 //fastify.decorate('loadType_int32', loadType)
 //done()
@@ -74,4 +74,4 @@ export function loadType(mongoose) {
 //export default fp(int32Plugin, {
 //  name: 'int32'
 //})
-export default Int32
+export default Integer

@@ -1,9 +1,7 @@
 import AutoLoad from '@fastify/autoload'
 import Cors from '@fastify/cors'
-//import Mongodb from '@fastify/mongodb'
 import Static from '@fastify/static'
 import { join } from 'desm'
-//import db from './db.mjs'
 import router from './router.mjs'
 
 export default async function (fastify, opts) {
@@ -11,12 +9,6 @@ export default async function (fastify, opts) {
     timestamp: new Date().toISOString()
   })
 
-//fastify.register(db, { url: fastify.config.MONGO_CONNECT }) //use mongoose
-/*fastify.register(Mongodb, {
-      forceClose: true,
-      url: fastify.config.MONGO_CONNECT,
-      name: 'cruise',
-  })*/
   fastify.register(AutoLoad, {
     dir: join(import.meta.url, 'plugins'),
     options: Object.assign({ url: fastify.config.MONGO_CONNECT }, opts)
@@ -29,7 +21,7 @@ export default async function (fastify, opts) {
         credentials: true,
         preflight: true,
         preflightContinue: true,
-        methods: ['GET', 'POST', 'HEAD', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        methods: ['GET', 'POST', 'OPTIONS'], //'HEAD', 'PUT', 'PATCH', 'DELETE'
         allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Keep-Alive', 'User-Agent',
                          'Cache-Control', 'Authorization', 'DNT', 'X-PINGOTHER', 'Range'],
         exposedHeaders: ['Content-Range'],
