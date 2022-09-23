@@ -37,7 +37,6 @@
 	"devDependencies": {
 		"child_process": "^1.0.2",
 		"esbuild": "^0.15.8",
-		"esbuild-plugin-public-directory": "^0.0.5",
 		"esm": "^3.2.25",
 		"nodemon": "^2.0.12",
 		"tiny-glob": "^0.2.9"

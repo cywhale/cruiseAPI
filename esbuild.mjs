@@ -1,7 +1,6 @@
 import esbuild  from 'esbuild'
 import glob from 'tiny-glob' //https://github.com/davipon/fastify-esbuild/blob/main/esbuild.ts
 import { spawn } from 'child_process'
-//import publicDir from 'esbuild-plugin-public-directory'
 //import fs from 'fs'
 //import path from 'path'
 //import esbuildPluginPino from 'esbuild-plugin-pino'
@@ -55,7 +54,10 @@ esbuild.
 	entryPoints: entryPoints,
 	outdir: 'build',
         format: 'esm',
-        external: ["esnext"], //'./node_modules/*',
+//https://docs.devland.is/repository/openapi#configuring-swaggerui-dependencies-for-esbuild
+//github https://github.com/island-is/island.is/blob/main/apps/api/esbuild.json
+//twitter and stackoverflow: https://twitter.com/bramasolo/status/1573229873102987264
+        external: ["esnext", "@fastify/swagger"], //'./node_modules/*',
 	bundle: true,
 	sourcemap: true,
         minify: true,
