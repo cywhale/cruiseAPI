@@ -7,7 +7,7 @@ import moduleFactory from 'mongoose-schema-jsonschema'
 const Integer = loadType(mongoose)
 moduleFactory(mongoose) //https://github.com/DScheglov/mongoose-schema-jsonschema
 
-const crBasicSchema = new Schema({
+const csrBasicSchema = new Schema({
       ShipName: { type: String, required: true },
       CruiseID: { type: String, required: true },
       LeaderName: { type: String, required: true },
@@ -24,43 +24,43 @@ const crBasicSchema = new Schema({
       PlanName: String,
       Technician: String,
       Remark: String
-})
+}, { _id : false })
 
-const crUserSchema = new Schema({
+const csrUserSchema = new Schema({
       Department: [{type: String}],
       Name: [{type: String}]
-})
+}, { _id : false })
 
-const crItemSchema = new Schema({
+const csrItemSchema = new Schema({
       Item: [{type: String}],
       CollectionNum: [{type: Integer}],
       CollectionOwner: [{type: String}],
       ReasonChecked: [{type: Integer}],
       Reason: [{type: String}]
-})
+}, { _id : false })
 
-const crFieldSchema = new Schema({
+const csrFieldSchema = new Schema({
       Equipment: [{type: String}],
       Summary1: [{type: String}],
       Summary2: [{type: String}],
       DataOwner: [{type: String}]
-})
+}, { _id : false })
 
-const crdataSchema = new Schema({
-    CruiseBasicData: crBasicSchema,
-    Participants: crUserSchema,
-    CruiseData: crItemSchema,
-    Physical: crFieldSchema,
-    Biogeochemical: crFieldSchema,
-    Biology: crFieldSchema,
-    Geology: crFieldSchema,
-    Geophysics: crFieldSchema,
-    Atmospher: crFieldSchema,
-    Other: crFieldSchema
+const csrSchema = new Schema({
+    CruiseBasicData: csrBasicSchema,
+    Participants: csrUserSchema,
+    CruiseData: csrItemSchema,
+    Physical: csrFieldSchema,
+    Biogeochemical: csrFieldSchema,
+    Biology: csrFieldSchema,
+    Geology: csrFieldSchema,
+    Geophysics: csrFieldSchema,
+    Atmospher: csrFieldSchema,
+    Other: csrFieldSchema
 }, { timestamps: true })
 
-//const CRdata = mongoose.model('crdata', crdataSchema, 'crdata')
-//export default CRdata
-export const crdataJsonSchema = crdataSchema.jsonSchema()
-export default crdataSchema
-//console.dir(crdataJsonSchema, { depth: null })
+//const CSR = mongoose.model('csr', crdataSchema, 'csr')
+//export default CSR
+export const csrJsonSchema = csrSchema.jsonSchema()
+export default csrSchema
+//console.dir(csrJsonSchema, { depth: null })

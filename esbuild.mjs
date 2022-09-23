@@ -1,8 +1,9 @@
 import esbuild  from 'esbuild'
 import glob from 'tiny-glob' //https://github.com/davipon/fastify-esbuild/blob/main/esbuild.ts
 import { spawn } from 'child_process'
-import fs from 'fs'
-import path from 'path'
+//import publicDir from 'esbuild-plugin-public-directory'
+//import fs from 'fs'
+//import path from 'path'
 //import esbuildPluginPino from 'esbuild-plugin-pino'
 
 ;(async function () {
@@ -47,7 +48,7 @@ const getFilesRecursively = (dir) => {
 getFilesRecursively('src')
 const entryPoints = fileArray.filter((file) => file.endsWith('.mjs'))
 */
-const entryPoints = //['src/index.mjs']
+const entryPoints = //['src/index.mjs'] //filesOnly false keeps the dir path, for fastify plugins
                     await glob('src/**/*.mjs', {filesOnly: false})
 esbuild.
   build({ logLevel: 'info',
@@ -71,7 +72,7 @@ esbuild.
         keepNames: true,
 	watch: isDev && { onRebuild },
         plugins: [ //esbuildPluginPino({ transports: ['pino-pretty'] }),
-                  nodePrefixExcludePlugin]
+                  nodePrefixExcludePlugin] //, publicDir()]
   })
   .finally(onRebuild)
   .catch(() => process.exit(1))

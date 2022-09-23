@@ -1,15 +1,15 @@
 import { parse } from 'arraybuffer-xml-parser' //https://github.com/cheminfo/arraybuffer-xml-parser
 import fp from 'fastify-plugin'
-//import CRdata from '../models/crdata_schema.mjs'
-import mongoose from 'mongoose'
-import crdataSchema from '../models/crdata_schema.mjs'
+//import mongoose from 'mongoose'
+//import csrSchema from '../models/csrSchema.mjs'
 
 async function xmlHandler (fastify, opts) {
   fastify.decorate('onFile', onFile)
 
   async function onFile(part) {
-    const conn = mongoose.createConnection(fastify.config.MONGO_CONNECT);
-    const CRdata = conn.model('crdata', crdataSchema, 'crdata');
+    //const conn = mongoose.createConnection(fastify.config.MONGO_CONNECT)
+    const { CSR } = fastify //conn.model('csr', csrSchema, 'csr')
+
     const buff = await part.toBuffer()
     const xml = buff.toString() //Buffer.from(buff.toString(), 'base64').toString()
     let jbody = parse(xml, {arrayMode: false})
@@ -36,7 +36,7 @@ async function xmlHandler (fastify, opts) {
     fastify.log.info("Upload " + part.filename + " at " + fastify.conf.timestamp)
     fastify.log.info(data)
     part.value = data
-    await CRdata.create(data)
+    await CSR.create(data)
   }
 }
 

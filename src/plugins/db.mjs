@@ -1,6 +1,5 @@
-
-import fp from 'fastify-plugin';
-import mongoose from 'mongoose';
+import fp from 'fastify-plugin'
+import mongoose from 'mongoose'
 
 const dbConnector = async (fastify, options) => {
         try {

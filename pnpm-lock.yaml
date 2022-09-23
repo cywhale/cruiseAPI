@@ -6,10 +6,12 @@ specifiers:
   '@fastify/env': ^4.1.0
   '@fastify/multipart': ^7.2.0
   '@fastify/static': ^6.5.0
+  '@fastify/swagger': ^7.6.0
   arraybuffer-xml-parser: ^0.6.0
   child_process: ^1.0.2
   desm: ^1.3.0
   esbuild: ^0.15.8
+  esbuild-plugin-public-directory: ^0.0.5
   esm: ^3.2.25
   fastify: 4.6.0
   fastify-plugin: ^4.2.1
@@ -26,11 +28,9 @@ dependencies:
   '@fastify/env': 4.1.0
   '@fastify/multipart': 7.2.0
   '@fastify/static': 6.5.0
+  '@fastify/swagger': 7.6.0
   arraybuffer-xml-parser: 0.6.0
-  child_process: 1.0.2
   desm: 1.3.0
-  esbuild: 0.15.8
-  esm: 3.2.25
   fastify: 4.6.0
   fastify-plugin: 4.2.1
   fluent-json-schema: 3.1.0
@@ -39,6 +39,10 @@ dependencies:
   mongoose-schema-jsonschema: 2.0.2_mongoose@6.6.1
 
 devDependencies:
+  child_process: 1.0.2
+  esbuild: 0.15.8
+  esbuild-plugin-public-directory: 0.0.5_esbuild@0.15.8
+  esm: 3.2.25
   nodemon: 2.0.20
   tiny-glob: 0.2.9
 
@@ -52,7 +56,7 @@ packages:
     requiresBuild: true
     dependencies:
       esbuild-wasm: 0.15.8
-    dev: false
+    dev: true
     optional: true
 
   /@esbuild/linux-loong64/0.15.8:
@@ -61,7 +65,7 @@ packages:
     cpu: [loong64]
     os: [linux]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /@fastify/accept-negotiator/1.0.0:
@@ -141,6 +145,19 @@ packages:
       p-limit: 3.1.0
       readable-stream: 4.1.0
       send: 0.18.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@fastify/swagger/7.6.0:
+    resolution: {integrity: sha512-NzLxsf4KeI0HaPMVs0+Mtqn2ofGm8PF7vWqaWqmh9mkTxclxMvMyrOuQ/yu87d+fX2Sd9mYWVmmvIAmtnMtwaA==}
+    dependencies:
+      '@fastify/static': 6.5.0
+      fastify-plugin: 4.2.1
+      json-schema-resolver: 2.0.0
+      openapi-types: 12.0.2
+      rfdc: 1.3.0
+      yaml: 2.1.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -274,7 +291,7 @@ packages:
 
   /child_process/1.0.2:
     resolution: {integrity: sha512-Wmza/JzL0SiWz7kl6MhIKT5ceIlnFPJX+lwUGj7Clhy5MMldsSoJR0+uvRzOS5Kv45Mq7t1PoE8TsOA9bzvb6g==}
-    dev: false
+    dev: true
 
   /chokidar/3.5.3:
     resolution: {integrity: sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==}
@@ -411,7 +428,7 @@ packages:
     requiresBuild: true
     dependencies:
       esbuild-wasm: 0.15.8
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-android-arm64/0.15.8:
@@ -420,7 +437,7 @@ packages:
     cpu: [arm64]
     os: [android]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-darwin-64/0.15.8:
@@ -429,7 +446,7 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-darwin-arm64/0.15.8:
@@ -438,7 +455,7 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-freebsd-64/0.15.8:
@@ -447,7 +464,7 @@ packages:
     cpu: [x64]
     os: [freebsd]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-freebsd-arm64/0.15.8:
@@ -456,7 +473,7 @@ packages:
     cpu: [arm64]
     os: [freebsd]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-linux-32/0.15.8:
@@ -465,7 +482,7 @@ packages:
     cpu: [ia32]
     os: [linux]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-linux-64/0.15.8:
@@ -474,7 +491,7 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-linux-arm/0.15.8:
@@ -483,7 +500,7 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-linux-arm64/0.15.8:
@@ -492,7 +509,7 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-linux-mips64le/0.15.8:
@@ -501,7 +518,7 @@ packages:
     cpu: [mips64el]
     os: [linux]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-linux-ppc64le/0.15.8:
@@ -510,7 +527,7 @@ packages:
     cpu: [ppc64]
     os: [linux]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-linux-riscv64/0.15.8:
@@ -519,7 +536,7 @@ packages:
     cpu: [riscv64]
     os: [linux]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-linux-s390x/0.15.8:
@@ -528,7 +545,7 @@ packages:
     cpu: [s390x]
     os: [linux]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-netbsd-64/0.15.8:
@@ -537,7 +554,7 @@ packages:
     cpu: [x64]
     os: [netbsd]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-openbsd-64/0.15.8:
@@ -546,8 +563,18 @@ packages:
     cpu: [x64]
     os: [openbsd]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
+
+  /esbuild-plugin-public-directory/0.0.5_esbuild@0.15.8:
+    resolution: {integrity: sha512-nJ8GQqlMWM8ZhOhE8rPOcjBBz6JYDLZjLO99Uc34irxXfEAp6qk7Nc3bu41c4r7phTTd+SkRPZd8Uk6Nrbkrow==}
+    peerDependencies:
+      esbuild: '*'
+    dependencies:
+      chokidar: 3.5.3
+      esbuild: 0.15.8
+      fs-extra: 10.1.0
+    dev: true
 
   /esbuild-sunos-64/0.15.8:
     resolution: {integrity: sha512-qMP/jR/FzcIOwKj+W+Lb+8Cfr8GZHbHUJxAPi7DUhNZMQ/6y7sOgRzlOSpRrbbUntrRZh0MqOyDhJ3Gpo6L1QA==}
@@ -555,7 +582,7 @@ packages:
     cpu: [x64]
     os: [sunos]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-wasm/0.15.8:
@@ -563,7 +590,7 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-windows-32/0.15.8:
@@ -572,7 +599,7 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-windows-64/0.15.8:
@@ -581,7 +608,7 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild-windows-arm64/0.15.8:
@@ -590,7 +617,7 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /esbuild/0.15.8:
@@ -621,7 +648,7 @@ packages:
       esbuild-windows-32: 0.15.8
       esbuild-windows-64: 0.15.8
       esbuild-windows-arm64: 0.15.8
-    dev: false
+    dev: true
 
   /escape-html/1.0.3:
     resolution: {integrity: sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==}
@@ -630,7 +657,7 @@ packages:
   /esm/3.2.25:
     resolution: {integrity: sha512-U1suiZ2oDVWv4zPO56S0NcR5QriEahGtdN2OR6FiOG4WJvcjBVFB0qI4+eKoWFH483PKGuLuu6V8Z4T5g63UVA==}
     engines: {node: '>=6'}
-    dev: false
+    dev: true
 
   /etag/1.8.1:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
@@ -747,6 +774,15 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
+  /fs-extra/10.1.0:
+    resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      graceful-fs: 4.2.10
+      jsonfile: 6.1.0
+      universalify: 2.0.0
+    dev: true
+
   /fs.realpath/1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
     dev: false
@@ -787,6 +823,10 @@ packages:
 
   /globrex/0.1.2:
     resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
+    dev: true
+
+  /graceful-fs/4.2.10:
+    resolution: {integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==}
     dev: true
 
   /has-flag/3.0.0:
@@ -862,9 +902,28 @@ packages:
     engines: {node: '>=0.12.0'}
     dev: true
 
+  /json-schema-resolver/2.0.0:
+    resolution: {integrity: sha512-pJ4XLQP4Q9HTxl6RVDLJ8Cyh1uitSs0CzDBAz1uoJ4sRD/Bk7cFSXL1FUXDW3zJ7YnfliJx6eu8Jn283bpZ4Yg==}
+    engines: {node: '>=10'}
+    dependencies:
+      debug: 4.3.4
+      rfdc: 1.3.0
+      uri-js: 4.4.1
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /json-schema-traverse/1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
     dev: false
+
+  /jsonfile/6.1.0:
+    resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
+    dependencies:
+      universalify: 2.0.0
+    optionalDependencies:
+      graceful-fs: 4.2.10
+    dev: true
 
   /kareem/2.4.1:
     resolution: {integrity: sha512-aJ9opVoXroQUPfovYP5kaj2lM7Jn02Gw13bL0lg9v0V7SaUc0qavPs0Eue7d2DcC3NjqI6QAUElXNsuZSeM+EA==}
@@ -1039,6 +1098,10 @@ packages:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
     dependencies:
       wrappy: 1.0.2
+    dev: false
+
+  /openapi-types/12.0.2:
+    resolution: {integrity: sha512-GuTo7FyZjOIWVhIhQSWJVaws6A82sWIGyQogxxYBYKZ0NBdyP2CYSIgOwFfSB+UVoPExk/YzFpyYitHS8KVZtA==}
     dev: false
 
   /p-limit/2.3.0:
@@ -1371,6 +1434,11 @@ packages:
     resolution: {integrity: sha512-WxONCrssBM8TSPRqN5EmsjVrsv4A8X12J4ArBiiayv3DyyG3ZlIg6yysuuSYdZsVz3TKcTg2fd//Ujd4CHV1iA==}
     dev: true
 
+  /universalify/2.0.0:
+    resolution: {integrity: sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==}
+    engines: {node: '>= 10.0.0'}
+    dev: true
+
   /uri-js/4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
     dependencies:
@@ -1396,6 +1464,11 @@ packages:
 
   /yallist/4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
+    dev: false
+
+  /yaml/2.1.1:
+    resolution: {integrity: sha512-o96x3OPo8GjWeSLF+wOAbrPfhFOGY0W00GNaxCDv+9hkcDJEnev1yh8S7pgHF0ik6zc8sQLuL8hjHjJULZp8bw==}
+    engines: {node: '>= 14'}
     dev: false
 
   /yocto-queue/0.1.0:
