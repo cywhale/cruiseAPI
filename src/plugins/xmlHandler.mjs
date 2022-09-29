@@ -33,8 +33,23 @@ async function xmlHandler (fastify, opts) {
       data.CruiseBasicData.StartDate = start
       data.CruiseBasicData.EndDate = end
     }
-    fastify.log.info("Upload " + part.filename + " at " + fastify.conf.timestamp)
-    fastify.log.info(data)
+
+    //check empty keys
+    for (let prop in data) {
+      if ((typeof data[prop] === 'object' && Object.keys(data[prop]).length === 0) ||
+          (typeof data[prop] === 'string' && data[prop].trim() === "")) {
+        delete data[prop]
+      }
+    }
+
+    if (!data.CruiseBasicData.CruiseID) {
+      throw new Error('Cruise Report Format Error: No CruiseID')
+    } else {
+      data.CruiseBasicData.CruiseID = data.CruiseBasicData.CruiseID.toString() //convert only digits ID to string
+    }
+
+    fastify.log.info(`Upload ${part.filename} at ${new Date().toISOString()}`)
+    //fastify.log.info(data)
     part.value = data
     await CSR.create(data)
   }

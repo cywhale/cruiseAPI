@@ -27,7 +27,7 @@ export default async function csrqry (fastify, opts, next) {
       if (dash) { str = str.replace(/\s*-\s*|(?!(^|,|.))\s(?!(,|$))/g,'(-*\\s*)') }   //e.g. EA - 640 match EA-640 or EA 640 or EA640
       if (dot) { str = str.replace(/\.+\s*(?![\*])/g,'(\\.*\\s*)') }  //e.g. L.A. Liao match L. A. Liao or L.A.Liao or L>
       if (str.indexOf(',') >= (str.length-1)) { str = str.slice(0, -1) } //avoid 'ADCP 150khz, ' search all
-      fastify.log.info("Debug: "+ str)
+      //fastify.log.info("Debug: "+ str)
       if (strmode) { return str }
 
       let items = str.split(/,\s*/) //but here , had been trimmed
@@ -152,7 +152,15 @@ export default async function csrqry (fastify, opts, next) {
           //Note that it can work because we create text index(EquipIndex) of MongoDB on CruiseData.Item and Equipment, use $text search
           //let items = qstr.item.replace(/['"]+/g,'').replace(/\/\//g, '').replace(/\,/g, '|').replace(/(-|\s)/g, '(-*|\\s*)')
           itemx = uncaseArrMatch(qstr.item, true, false, false, true, false, true)
-          qry = {...qry, $text: { $search: itemx.replace(/,\s*/g,"|") }}
+          qry = {...qry, $or:[ //{$text: { $search: itemx.replace(/,\s*/g,"|")}},
+                         {"CruiseData.Item": { $regex: itemx, $options: "ix"}},
+                         {"Physical.Equipment": { $regex: itemx, $options: "ix"}},
+                         {"Biogeochemical.Equipment": { $regex: itemx, $options: "ix"}},
+                         {"Biology.Equipment": { $regex: itemx, $options: "ix"}},
+                         {"Geology.Equipment": { $regex: itemx, $options: "ix"}},
+                         {"Geophysics.Equipment": { $regex: itemx, $options: "ix"}},
+                         {"Atmospher.Equipment": { $regex: itemx, $options: "ix"}},
+                         {"Other.Equipment": { $regex: itemx, $options: "ix"}}]}
         }
       }
       if (Array.isArray(itemx)) {

@@ -29,7 +29,7 @@ const csrBasicSchema = new Schema({
 const csrUserSchema = new Schema({
       Department: [{type: String}],
       Name: [{type: String}]
-}, { _id : false })
+}, { required: false, _id : false })
 
 const csrItemSchema = new Schema({
       Item: [{type: String}],
@@ -37,14 +37,14 @@ const csrItemSchema = new Schema({
       CollectionOwner: [{type: String}],
       ReasonChecked: [{type: Integer}],
       Reason: [{type: String}]
-}, { _id : false })
+}, { required: false, _id : false })
 
 const csrFieldSchema = new Schema({
       Equipment: [{type: String}],
       Summary1: [{type: String}],
       Summary2: [{type: String}],
       DataOwner: [{type: String}]
-}, { _id : false })
+}, { required: false, _id : false })
 
 const csrSchema = new Schema({
     CruiseBasicData: csrBasicSchema,

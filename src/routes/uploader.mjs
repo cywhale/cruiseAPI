@@ -5,16 +5,24 @@
 export const autoPrefix = '/data'
 
 export default async function apirest (fastify, opts, next) {
-  //const pump = util.promisify(pipeline)
-  //const { concat } = concatStream
+  const { CSR, onFile } = fastify
+
   fastify.post('/upload', async function (req, reply) {
-    const uploadValue = req.body.upload // access file as base64 string
     //const data = await req.file()
-    //await pump(data.file, fs.createWriteStream('data/upload/' + data.filename))
-    /*await pump(data.file, concat(function (buf) {
-            let xml = buf.toString() //https://github.com/fastify/fastify-multipart/blob/master/test/multipart.test.js
-          }))*/
-    reply.code(200).send()
+    if (!req.isMultipart()) { //https://github.com/fastify/fastify-multipart/blob/master/callback.md
+      fastify.log.error("Not a multipart request. Check it")
+    }
+    fastify.log.info(`Uploading Done at: ${new Date().toISOString()}`)
+    //https://github.com/fastify/fastify-multipart/issues/131
+    //  function onEnd(err) {
+    //    if (err) {
+    //      reply.code(500).send({ err })
+    //    }
+    //  }
+    /*req.multipart(handler, onEnd, {
+        limits: {...},
+      })
+    }*/
   })
 
   next()
