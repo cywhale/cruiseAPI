@@ -3,10 +3,11 @@ import Fastify from 'fastify'
 import Env from '@fastify/env'
 import S from 'fluent-json-schema'
 import Swagger from '@fastify/swagger'
+import SwaggerUI from '@fastify/swagger-ui'
 import { readFileSync } from 'fs'
 import { join } from 'desm'
 import srvapp from './srvapp.mjs'
-import apiConf from './swagger_config.mjs'
+import apiConf, { uiConf }  from './swagger_config.mjs'
 
 const configSecServ = async (certDir='../config') => {
   const readCertFile = (filename) => {
@@ -51,15 +52,16 @@ const startServer = async () => {
     if (err) console.error(err)
   })
 
-  fastify.register(Swagger, apiConf)
-  fastify.register(srvapp)
+  await fastify.register(Swagger, apiConf)
+  await fastify.register(SwaggerUI, uiConf)
+  await fastify.register(srvapp)
 
   fastify.listen({ port: PORT }, function (err, address) {
     if (err) {
       fastify.log.error(err)
       process.exit(1)
     }
-    fastify.swagger()
+    //fastify.swagger()
     fastify.log.info(`server listening on ${address}`)
   })
 }

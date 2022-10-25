@@ -55,7 +55,7 @@ const csrSchema = new Schema({
     Biology: csrFieldSchema,
     Geology: csrFieldSchema,
     Geophysics: csrFieldSchema,
-    Atmospher: csrFieldSchema,
+    Atmosphere: csrFieldSchema,
     Other: csrFieldSchema
 }, { timestamps: true })
 

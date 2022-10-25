@@ -1,7 +1,6 @@
 'use strict'
 const apiConf = {
-    routePrefix: '/cruise/public',
-    exposeRoute: true,
+    //exposeRoute: true,
     hideUntagged: true,
     swagger: {
       info: {
@@ -17,11 +16,18 @@ const apiConf = {
       consumes: ['application/json'],
       produces: ['application/json'],
     },
+}
+
+export const uiConf = {
+    routePrefix: '/cruise/public',
+    staticCSP: true,
+    transformStaticCSP: (header) => header,
     uiConfig: {
       validatorUrl: null,
       docExpansion: 'list', //'full'
       deepLinking: false
     } //https://github.com/fastify/fastify-swagger/issues/191
 }
+
 export default apiConf
 

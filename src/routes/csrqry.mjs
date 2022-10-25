@@ -60,7 +60,7 @@ export default async function csrqry (fastify, opts, next) {
       }
     },
     async function (req, reply) {
-      let itemx = uncaseArrMatch(req.params.id)
+      let itemx = uncaseArrMatch(req.params.id, false, true, false, true, false, false)
       const out = await
         CSR.find({
           "CruiseBasicData.CruiseID": { $in: itemx }
@@ -151,7 +151,7 @@ export default async function csrqry (fastify, opts, next) {
         if (qstr.item.trim() !== '' && qstr.item.trim() !== '*') {
           //Note that it can work because we create text index(EquipIndex) of MongoDB on CruiseData.Item and Equipment, use $text search
           //let items = qstr.item.replace(/['"]+/g,'').replace(/\/\//g, '').replace(/\,/g, '|').replace(/(-|\s)/g, '(-*|\\s*)')
-          itemx = uncaseArrMatch(qstr.item, true, false, false, true, false, true)
+          itemx = uncaseArrMatch(qstr.item, true, false, false, true, false, true).replace(/,\s*/g,"|")
           qry = {...qry, $or:[ //{$text: { $search: itemx.replace(/,\s*/g,"|")}},
                          {"CruiseData.Item": { $regex: itemx, $options: "ix"}},
                          {"Physical.Equipment": { $regex: itemx, $options: "ix"}},
@@ -159,7 +159,7 @@ export default async function csrqry (fastify, opts, next) {
                          {"Biology.Equipment": { $regex: itemx, $options: "ix"}},
                          {"Geology.Equipment": { $regex: itemx, $options: "ix"}},
                          {"Geophysics.Equipment": { $regex: itemx, $options: "ix"}},
-                         {"Atmospher.Equipment": { $regex: itemx, $options: "ix"}},
+                         {"Atmosphere.Equipment": { $regex: itemx, $options: "ix"}},
                          {"Other.Equipment": { $regex: itemx, $options: "ix"}}]}
         }
       }
