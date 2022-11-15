@@ -12,15 +12,15 @@ const csrBasicSchema = new Schema({
       CruiseID: { type: String, required: true },
       LeaderName: { type: String, required: true },
       ExploreOcean: String,
-      FarestDistance: { type: Integer },
-      TotalDistance: { type: Integer },
-      FuelConsumption: { type: Integer },
+      FarestDistance: { type: Number, required: false, default: null },
+      TotalDistance: { type: Number, required: false, default: null },
+      FuelConsumption: { type: Number, required: false, default: null },
       StartDate: { type: Date, required: true },
       EndDate: { type: Date, required: true },
       StartPort: String,
       EndPort: String,
-      DurationDays: { type: Integer },
-      DurationHours: { type: Integer },
+      DurationDays: { type: Integer, required: false, default: null },
+      DurationHours: { type: Integer, required: false, default: null },
       PlanName: String,
       Technician: String,
       Remark: String
@@ -57,7 +57,7 @@ const csrSchema = new Schema({
     Geophysics: csrFieldSchema,
     Atmosphere: csrFieldSchema,
     Other: csrFieldSchema
-}, { timestamps: true })
+}, { timestamps: {currentTime: () => new Date(+Date.now()  + 8 * 3600 * 1000)} })
 
 //const CSR = mongoose.model('csr', crdataSchema, 'csr')
 //export default CSR
