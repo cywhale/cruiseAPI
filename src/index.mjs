@@ -7,7 +7,7 @@ import SwaggerUI from '@fastify/swagger-ui'
 import { readFileSync } from 'fs'
 import { join } from 'desm'
 import srvapp from './srvapp.mjs'
-import apiConf, { uiConf }  from './swagger_config.mjs'
+import apiConf, { uiConf }  from './module/swagger_config.mjs'
 
 const configSecServ = async (certDir='../config') => {
   const readCertFile = (filename) => {
@@ -47,6 +47,14 @@ const startServer = async () => {
       .prop('COOKIE_SECRET', S.string().required())
       .prop('BASE_URL', S.string().required())
       .prop('MONGO_CONNECT', S.string().required())
+      .prop('SQLSERVER', S.string().required())
+      .prop('SQLPORT', S.integer().required())
+      .prop('SHIPDB', S.string().required())
+      .prop('SHIPUSER', S.string().required())
+      .prop('SHIPPASS', S.string().required())
+      .prop('TABLE_NOR1', S.string().required())
+      .prop('TABLE_NOR2', S.string().required())
+      .prop('TABLE_NOR3', S.string().required())
       .valueOf()
   }).ready((err) => {
     if (err) console.error(err)
