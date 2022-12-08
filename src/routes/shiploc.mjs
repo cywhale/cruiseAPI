@@ -42,10 +42,14 @@ export default async function shiploc (fastify, opts, next) {
     let qry = 'SELECT TOP 1 lon as "longitude", lat as "latitude", ctime as "ctime", ' +
           'updtime as "updtime" ' + //, source as "source" ' +
           `From ${ship}`
-    fastify.log.info("Query: " + qry)
+    //fastify.log.info("Query: " + qry)
     if (ship) {
       const data = await shipdb.raw(qry)
-      fastify.log.info("Data: " + JSON.stringify(data))
+      if (req.params.ship !== 'NOR1') {  //Note NOR2, NOR3 is local time, not UTC time (but NOR1 is UTC time), that's confused 202212
+        data[0].ctime = new Date(+new Date(data[0].ctime) - 8 * 3600 * 1000).toISOString()
+      }
+      data[0].updtime = new Date(+new Date(data[0].updtime) - 8 * 3600 * 1000).toISOString()
+      //fastify.log.info("Data: " + JSON.stringify(data))
       reply.send(data)
     } else {
       reply.code(204)
