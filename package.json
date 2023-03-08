@@ -1,15 +1,14 @@
 {
 	"name": "ODB Cruise API",
 	"type": "module",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "Cruise API of ODB",
-	"main": "index.js",
+	"main": "index.mjs",
 	"scripts": {
-		"dev": "nodemon src/index.mjs",
-		"start": "node src/index.mjs",
-		"estart": "node ./esbuild.mjs start",
+		"start": "node --watch ./src/index.mjs",
+		"estart": "node --watch ./esbuild.mjs start",
 		"build": "rm -rf build && node ./esbuild.mjs build",
-		"prod": "nodemon ./build/index.mjs"
+		"prod": "node --watch ./build/index.mjs"
 	},
 	"keywords": [
 		"Marine Research Vessels",
@@ -23,26 +22,25 @@
 		"@fastify/autoload": "5.6.0",
 		"@fastify/cors": "^8.2.0",
 		"@fastify/env": "^4.2.0",
-		"@fastify/multipart": "^7.3.0",
-		"@fastify/static": "^6.6.0",
-		"@fastify/swagger": "^8.2.0",
-		"@fastify/swagger-ui": "^1.3.0",
+		"@fastify/multipart": "^7.4.2",
+		"@fastify/static": "^6.9.0",
+		"@fastify/swagger": "^8.3.1",
+		"@fastify/swagger-ui": "^1.5.0",
 		"arraybuffer-xml-parser": "^0.6.0",
 		"desm": "^1.3.0",
 		"fastify": "4.10.2",
-		"fastify-plugin": "^4.4.0",
-		"fluent-json-schema": "^4.0.0",
+		"fastify-plugin": "^4.5.0",
+		"fluent-json-schema": "^4.1.0",
 		"fs": "^0.0.2",
 		"knex": "2.3.0",
-		"mongoose": "^6.8.0",
+		"mongoose": "^6.10.2",
 		"mongoose-schema-jsonschema": "^2.0.2",
 		"tedious": "15.1.1"
 	},
 	"devDependencies": {
 		"child_process": "^1.0.2",
-		"esbuild": "^0.16.1",
+		"esbuild": "^0.16.17",
 		"esm": "^3.2.25",
-		"nodemon": "^2.0.20",
 		"tiny-glob": "^0.2.9"
 	}
 }

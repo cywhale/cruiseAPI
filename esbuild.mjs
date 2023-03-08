@@ -57,7 +57,7 @@ esbuild.
 //https://docs.devland.is/repository/openapi#configuring-swaggerui-dependencies-for-esbuild
 //github https://github.com/island-is/island.is/blob/main/apps/api/esbuild.json
 //twitter and stackoverflow: https://twitter.com/bramasolo/status/1573229873102987264
-        external: ["esnext", "@fastify/swagger"], //'./node_modules/*',
+        external: ["esnext", "@fastify/swagger", "knex"], //'./node_modules/*',
 	bundle: true,
 	sourcemap: true,
         minify: true,
