@@ -86,7 +86,7 @@ export default async function (fastify, opts, next) {
 
   fastify.register(Static, {
     root: join(import.meta.url, '..', 'public'),
-    prefix: `${fastify.config.BASE_URL}/`,
+    prefix: `${fastify.config.BASE_URL}/form`,
   })
 
   fastify.register(router)

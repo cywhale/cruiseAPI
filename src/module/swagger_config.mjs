@@ -19,7 +19,7 @@ const apiConf = {
 }
 
 export const uiConf = {
-    routePrefix: '/cruise/public',
+    routePrefix: '/cruise',
     staticCSP: true,
     transformStaticCSP: (header) => header,
     uiConfig: {
