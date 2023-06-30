@@ -50,16 +50,22 @@ async function xmlHandler (fastify, opts) {
       }
     }
 
+    if (!data.CruiseBasicData.ShipName) {
+      throw new Error('Cruise Report Format Error: No ShipName')
+    } else {
+      data.CruiseBasicData.ShipName = data.CruiseBasicData.ShipName.toString().trim() //convert only digits ID to string
+    }
+
     if (!data.CruiseBasicData.CruiseID) {
       throw new Error('Cruise Report Format Error: No CruiseID')
     } else {
-      data.CruiseBasicData.CruiseID = data.CruiseBasicData.CruiseID.toString() //convert only digits ID to string
+      data.CruiseBasicData.CruiseID = data.CruiseBasicData.CruiseID.toString().trim() //convert only digits ID to string
     }
 
-    fastify.log.info(`Upload ${part.filename} at ${new Date().toISOString()}`)
+    fastify.log.info(`Upload/Before write-in ${part.filename} for ${data.CruiseBasicData.ShipName}:${data.CruiseBasicData.CruiseID} at ${new Date().toISOString()}`)
     //fastify.log.info(data)
     part.value = data
-    await CSR.create(data)
+    //await CSR.create(data) //move to src/router.mjs write-in when onSend to do check logic 202306
   }
 }
 
