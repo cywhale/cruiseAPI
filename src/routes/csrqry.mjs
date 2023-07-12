@@ -49,7 +49,7 @@ export default async function csrqry (fastify, opts, next) {
 
     fastify.get('/:id', {
       schema: {
-        description: 'Fetch CSR data by cruise id',
+        description: 'Fetch CSR data by /cruise-id',
         tags: ['CSR'],
         params: csridSchemaObj,
         response: {
@@ -194,9 +194,79 @@ export default async function csrqry (fastify, opts, next) {
       required: ['ship', 'id']
     }
 
+    const updValSchema = {
+          $id: '#updStrSchema',
+          description: 'Schema for updated value is in type string',
+          type: 'object',
+          properties: {
+            field: { type: 'string', description: 'Field to update in CSR' },
+          /*value: { //type: 'string', description: 'New value for the field (string)'
+              oneOf: [
+                { type: 'string', description: 'New value for the field (string)' },
+                { type: 'array', items: { type: 'string' }, description: 'New value for the field (array of strings)' }
+              ]
+            }*/
+          },
+          required: ['field'] //, 'value']
+    }
+/*
+    const updArrSchema = {
+          $id: '#updArrSchema',
+          description: 'Schema for updated value is in type array of string',
+          type: 'object',
+          properties: {
+            field: { type: 'string', description: 'Field to update in CSR' },
+            value: { type: 'array', items: { type: 'string' }, description: 'New value for the field (array of strings)' }
+          },
+          required: ['field', 'value']
+    }
+*/
+// 202307 add Update API
+    fastify.patch('/:ship/:id', {
+      schema: {
+        description: 'Update CSR data by by /ship-name/cruise-id',
+        tags: ['CSR'],
+        params: csrDelSchemaObj,
+        body: updValSchema,
+          //{ oneOf: [updStrSchema, updArrSchema] }
+        //},
+        response: {
+          200:{
+            type: 'array',
+            items: csrJsonSchema
+          }
+        }
+      }
+    },
+    async function (req, reply) {
+      const fieldToUpdate = req.body.field;
+      const updatedValue = req.body.value;
+      try {
+        const csr = await
+          CSR.findOneAndUpdate({
+            //"CruiseBasicData.CruiseID": { $in: itemx }
+            "CruiseBasicData.ShipName": req.params.ship,
+            "CruiseBasicData.CruiseID": req.params.id
+          },
+          { $set: { [fieldToUpdate]: updatedValue } },
+          { new: true })
+
+        if (!csr) {
+          reply.code(404).send({"Error": "Data to be modified not found"})
+          return
+        }
+
+        reply.code(200).send([csr])
+
+      } catch (err) {
+        fastify.log.error(err)
+        reply.code(500).send(JSON.stringify({"Error": err}))
+      }
+    })
+
     fastify.delete('/:ship/:id', {
       schema: {
-        description: 'Delete CSR data by /ship name/cruise id',
+        description: 'Delete CSR data by /ship-name/cruise-id',
         tags: ['CSR'],
         params: csrDelSchemaObj,
         response: 204
@@ -205,7 +275,7 @@ export default async function csrqry (fastify, opts, next) {
     async function(req, reply) {
       try {
         CSR.deleteOne({ "CruiseBasicData.ShipName": req.params.ship,
-                     "CruiseBasicData.CruiseID": req.params.id }, function(err, cb) {
+                        "CruiseBasicData.CruiseID": req.params.id }, function(err, cb) {
           if (err) fastify.log.error(err)
           fastify.log.info("Remove CSR: " + req.params.ship + "/" + req.params.id)
         })
