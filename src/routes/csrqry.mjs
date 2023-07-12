@@ -273,17 +273,18 @@ export default async function csrqry (fastify, opts, next) {
       }
     },
     async function(req, reply) {
-      try {
+      //try { //mongoose >= v7 not support callback in deleteOne for function(err, cb)
         CSR.deleteOne({ "CruiseBasicData.ShipName": req.params.ship,
-                        "CruiseBasicData.CruiseID": req.params.id }, function(err, cb) {
-          if (err) fastify.log.error(err)
+                        "CruiseBasicData.CruiseID": req.params.id }).then(function() {
           fastify.log.info("Remove CSR: " + req.params.ship + "/" + req.params.id)
+          reply.code(204)
+        }).catch(function(err){
+          fastify.log.error(err)
+          reply.code(500).send(JSON.stringify({"Error": err}))
         })
-	reply.code(204)
-
-      } catch(err) {
-        fastify.log.error(err)
-      }
+      //} catch(err) {
+      //  fastify.log.error(err)
+      //}
     })
 
     const MultiDelHandler = async (req, reply, DateOp="CruiseBasicData.StartDate") => {
@@ -326,17 +327,18 @@ export default async function csrqry (fastify, opts, next) {
         }
       }
       qry = {...qry, $and:[startq, endq]}
-
-      fastify.log.info("Remove CSR: " + JSON.stringify(qry))
-      try {
-        CSR.deleteMany(qry, function(err, cb) {
-          if (err) fastify.log.error(err)
+      //try {
+        CSR.deleteMany(qry).then(function() {
+          fastify.log.info("Remove CSR: " + JSON.stringify(qry))
+          reply.code(204)
+        }).catch(function(err){
+          fastify.log.error(err)
+          reply.code(500).send(JSON.stringify({"Error": err}))
         })
-        reply.code(204)
-      } catch(err) {
-        fastify.log.error(err)
-        reply.code(400).send(JSON.stringify({"Error": err}))
-      }
+      //} catch(err) {
+      //  fastify.log.error(err)
+      //  reply.code(400).send(JSON.stringify({"Error": err}))
+      //}
     }
 
     const csrDelAfterSchemaObj = (DateOp="Cruise StartDate") => ({

@@ -12,7 +12,7 @@ async function xmlHandler (fastify, opts) {
 
     const buff = await part.toBuffer()
     const xml = buff.toString() //Buffer.from(buff.toString(), 'base64').toString()
-    let jbody = parse(xml, {arrayMode: false})
+    let jbody = parse(xml, {arrayMode: false, dynamicTypingNodeValue: false})
     let data = jbody.CruiseReport
     let start, end, t1, t2
     if (!data || !data.CruiseBasicData) {
@@ -59,13 +59,13 @@ async function xmlHandler (fastify, opts) {
     if (!data.CruiseBasicData.CruiseID) {
       throw new Error('Cruise Report Format Error: No CruiseID')
     } else {
+      //fastify.log.info("Cruise ID before trim: " + data.CruiseBasicData.CruiseID)
+      //dynamicTypingNodeValue: false to solve xml parser automatically trim 0057 as 57 for CruiseID problem
       data.CruiseBasicData.CruiseID = data.CruiseBasicData.CruiseID.toString().trim() //convert only digits ID to string
     }
-
-    fastify.log.info(`Upload/Before write-in ${part.filename} for ${data.CruiseBasicData.ShipName}:${data.CruiseBasicData.CruiseID} at ${new Date().toISOString()}`)
-    //fastify.log.info(data)
-    part.value = data
+    //fastify.log.info(`Upload/Before write-in ${part.filename} for ${data.CruiseBasicData.ShipName}:${data.CruiseBasicData.CruiseID} at ${new Date().toISOString()}`)
     //await CSR.create(data) //move to src/router.mjs write-in when onSend to do check logic 202306
+    part.value = data
   }
 }
 

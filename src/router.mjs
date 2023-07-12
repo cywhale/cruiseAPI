@@ -39,7 +39,7 @@ export default async function router (fastify, opts) {
       const existingData = await CSR.findOne(qryx) //, function(err, out) { //).exec() //a Promise
       let code = 200
       let payload = `Data uploaded for ${shipx}:${cridx}`
-      fastify.log.info(`${payload}. ${existingData? 'Data existed': 'Data not existed'}. Mode: ${mode}(/${req.body.mode})`)
+      //fastify.log.info(`${payload}. ${existingData? 'Data existed': 'Data not existed'}. Mode: ${mode}(/${req.body.mode})`)
       if (existingData) {
         if (mode === 'overwrite') {
             await CSR.updateOne(
@@ -57,15 +57,13 @@ export default async function router (fastify, opts) {
         await CSR.create(result)
         payload = payload + ' successfully.\n'
       }
-      //fastify.log.info(`${typeof out}`)
-      //fastify.log.info(out.length) //old: Note at this time, uploading is done, so cannot use findOne (always has at least one)
-      //fastify.log.info(out)
-      reply.code(code) //.send(payload)
+      //old: Note at this time, uploading is done, so cannot use findOne (always has at least one)
       //if (existingData && existingData.length > 1) {
       //  payload = JSON.stringify({"Warning": `Database has duplicated ship/cruise: ${shipx}/${cridx}! Check it!!`})
       //} else {
       //  payload = JSON.stringify({"Success": `Upload at ${new Date().toISOString()}`})
       //}
+      reply.code(code) //.send(payload)
       return payload
     }
   })
