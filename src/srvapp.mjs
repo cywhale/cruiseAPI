@@ -78,12 +78,12 @@ export default async function (fastify, opts, next) {
       callback(null, corsOptions)
     }
   })
-
+/* parsingCode not yet...
   fastify.addContentTypeParser('application/xml', (req, done) => {
     const parsedBody = parsingCode(req)
     done(null, parsedBody)
   })
-
+*/
   fastify.register(Static, {
     root: join(import.meta.url, '..', 'public'),
     prefix: `${fastify.config.BASE_URL}/form`,
