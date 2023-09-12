@@ -72,7 +72,8 @@ esbuild.
           ".js": ".mjs",
         },
         keepNames: true,
-	watch: isDev && { onRebuild },
+        treeShaking: true,
+	//watch: isDev && { onRebuild }, //deprecated https://github.com/evanw/esbuild/releases/tag/v0.17.0
         plugins: [ //esbuildPluginPino({ transports: ['pino-pretty'] }),
                   nodePrefixExcludePlugin] //, publicDir()]
   })
