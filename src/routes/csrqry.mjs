@@ -2,6 +2,9 @@
 //Mongoose Buffering mode cause esbuild bundle not connect //https://mongoosejs.com/docs/connections.html#buffering
 //import CRdata, {crdataJsonSchema} from '../models/crdata_schema.mjs'
 import mongoose from 'mongoose'
+import fs from 'fs'
+import tmp from 'tmp'
+//import path from 'path'
 import //csrSchema,
        {csrJsonSchema} from '../models/csrSchema.mjs'
 
@@ -9,7 +12,7 @@ export const autoPrefix = '/csrqry'
 
 export default async function csrqry (fastify, opts, next) {
     //const conn = mongoose.createConnection(fastify.config.MONGO_CONNECT)
-    const { CSR } = fastify //conn.model('csr', csrSchema, 'csr')
+    const { CSR, json2CSV } = fastify //conn.model('csr', csrSchema, 'csr')
     const sortCond = {sort: {"CruiseBasicData.ShipName": 1, "CruiseBasicData.StartDate": -1}}
 
     const csridSchemaObj = {
@@ -20,6 +23,41 @@ export default async function csrqry (fastify, opts, next) {
       required: ['id']
     }
 
+    const csrCsvFields = [
+            { label: 'ShipName', value: 'CruiseBasicData.ShipName' },
+            { label: 'CruiseID', value: 'CruiseBasicData.CruiseID' },
+            { label: 'LeaderName', value: 'CruiseBasicData.LeaderName' },
+            { label: 'ExploreOcean', value: 'CruiseBasicData.ExploreOcean' },
+            { label: 'FarestDistance', value: 'CruiseBasicData.FarestDistance' },
+            { label: 'TotalDistance', value: 'CruiseBasicData.TotalDistance' },
+            { label: 'FuelConsumption', value: 'CruiseBasicData.FuelConsumption' },
+            { label: 'StartDate', value: 'CruiseBasicData.StartDate' },
+            { label: 'EndDate', value: 'CruiseBasicData.EndDate' },
+            { label: 'StartPort', value: 'CruiseBasicData.StartPort' },
+            { label: 'EndPort', value: 'CruiseBasicData.EndPort' },
+            { label: 'DurationDays', value: 'CruiseBasicData.DurationDays' },
+            { label: 'DurationHours', value: 'CruiseBasicData.DurationHours' },
+            { label: 'PlanName', value: 'CruiseBasicData.PlanName' },
+            { label: 'Technician', value: 'CruiseBasicData.Technician' },
+            { label: 'Remark', value: 'CruiseBasicData.Remark' },
+            // Participants
+            { label: 'Participants_Department', value: (row) => row.Participants.Department.join(', ') },
+            { label: 'Participants_Name', value: (row) => row.Participants.Name.join(', ') },
+            /* Assuming CruiseData.Item and similar are arrays
+            { label: 'Item', value: (row) => row.CruiseData.Item.join(', ') },
+            { label: 'CollectionNum', value: (row) => row.CruiseData.CollectionNum.join(', ') },
+            { label: 'CollectionOwner', value: (row) => row.CruiseData.CollectionOwner.join(', ') },
+            { label: 'ReasonChecked', value: (row) => row.CruiseData.ReasonChecked.join(', ') },
+            { label: 'Reason', value: (row) => row.CruiseData.Reason.join(', ') },
+            // Assuming Other.Equipment is an array
+            { label: 'Equipment', value: (row) => row.CruiseData.Other.Equipment.join(', ') },
+            { label: 'Summary1', value: (row) => row.CruiseData.Other.Summary1.join(', ') },
+            { label: 'Summary2', value: (row) => row.CruiseData.Other.Summary2.join(', ') },
+            { label: 'DataOwner', value: (row) => row.CruiseData.Other.DataOwner.join(', ') },*/
+            // createdAt and updatedAt
+            //{ label: 'CreatedAt', value: 'createdAt' },
+            //{ label: 'UpdatedAt', value: 'updatedAt' }
+          ]
 
     const uncaseArrMatch = (qstr, strmode=false, regex=true, fuzzy=false, wildcard=false, dot=false, dash=false) => {
       //replace quotes, double slash and spacing following comma
@@ -47,11 +85,46 @@ export default async function csrqry (fastify, opts, next) {
       return out
     }
 
-    fastify.get('/:id', {
+    const getDateTimeFileName = (prefix='csr', ext='.csv', time_enable=true) => {
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = (now.getMonth() + 1).toString().padStart(2, '0') // Month is 0-indexed
+      const day = now.getDate().toString().padStart(2, '0')
+      if (!time_enable) {
+        return `${prefix}_${year}-${month}-${day}${ext}`
+      }
+
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const seconds = now.getSeconds().toString().padStart(2, '0');
+      return `${prefix}_${year}-${month}-${day}T${hours}${minutes}${seconds}${ext}`;
+    }
+
+    const csvHandler = async (data, filename, reply, format) => {
+      if (typeof format !== 'undefined' && format.trim().toLowerCase() === 'csv') {
+        try {
+          const tmpFile = tmp.fileSync({ postfix: '.csv' }) //path.join(__dirname, filename)
+          await json2CSV(data, tmpFile.name, reply, filename, { fields: csrCsvFields, withBOM: true })
+        } catch (err) {
+          fastify.log.error(err)
+          return reply.send(err)
+        }
+      } else {
+        return reply.code(200).send(data)
+      }
+    }
+
+    fastify.get('/:ship/:id', {
       schema: {
-        description: 'Fetch CSR data by /cruise-id',
+        description: 'Fetch CSR data by /ship-name/cruise-id',
         tags: ['CSR'],
         params: csridSchemaObj,
+        query: {
+          type: 'object',
+          properties: {
+            format: { type: 'string' },
+          }
+        },
         response: {
           200:{
             type: 'array',
@@ -61,12 +134,16 @@ export default async function csrqry (fastify, opts, next) {
       }
     },
     async function (req, reply) {
+      let shipx = uncaseArrMatch(req.params.ship, false, true, false, true, false, false)
       let itemx = uncaseArrMatch(req.params.id, false, true, false, true, false, false)
       const out = await
         CSR.find({
+          "CruiseBasicData.ShipName": { $in: shipx },
           "CruiseBasicData.CruiseID": { $in: itemx }
         }, {_id: 0 }, sortCond)
-      reply.code(200).send(out)
+
+      //reply.code(200).send(out)
+      csvHandler(out, getDateTimeFileName(), reply, req.query.format)
     })
 
     fastify.get('/', {
@@ -82,7 +159,8 @@ export default async function csrqry (fastify, opts, next) {
             end: { type: 'string' },
             leader: { type: 'string'},
             user: { type: 'string'},
-            item: { type: 'string'}
+            item: { type: 'string'},
+            format: {type: 'string'}
           }
         },
         response: {
@@ -182,7 +260,8 @@ export default async function csrqry (fastify, opts, next) {
       fastify.log.info(JSON.stringify(qry))
 
       const out = await CSR.find(qry, {_id: 0 }, sortCond)
-      reply.code(200).send(out)
+      //reply.code(200).send(out)
+      csvHandler(out, getDateTimeFileName(), reply, req.query.format)
     })
 
     const csrDelSchemaObj = {
