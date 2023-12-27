@@ -23,6 +23,18 @@ export default async function csrqry (fastify, opts, next) {
       required: ['id']
     }
 
+    const getArrStr = (arr) => arr.filter(x => x.toString().trim() !== '').join(',')
+    const getArrStr2= (arr) => arr.filter(x => x.toString().trim() !== '').join('、')
+    const getSplitNum = (x) => {
+      let str = x
+      if (Array.isArray(x)) {
+         str = x.join(',')
+      }
+      let out = str.split(/,|,\s|、|，/)
+      //if (str.indexOf(',')) { console.log("Debug: ", x, str, out) }
+      return out.length
+    }
+
     const csrCsvFields = [
             { label: 'ShipName', value: 'CruiseBasicData.ShipName' },
             { label: 'CruiseID', value: 'CruiseBasicData.CruiseID' },
@@ -41,19 +53,10 @@ export default async function csrqry (fastify, opts, next) {
             { label: 'Technician', value: 'CruiseBasicData.Technician' },
             { label: 'Remark', value: 'CruiseBasicData.Remark' },
             // Participants
-            { label: 'Participants_Department', value: (row) => row.Participants.Department.join(', ') },
-            { label: 'Participants_Name', value: (row) => row.Participants.Name.join(', ') },
-            /* Assuming CruiseData.Item and similar are arrays
-            { label: 'Item', value: (row) => row.CruiseData.Item.join(', ') },
-            { label: 'CollectionNum', value: (row) => row.CruiseData.CollectionNum.join(', ') },
-            { label: 'CollectionOwner', value: (row) => row.CruiseData.CollectionOwner.join(', ') },
-            { label: 'ReasonChecked', value: (row) => row.CruiseData.ReasonChecked.join(', ') },
-            { label: 'Reason', value: (row) => row.CruiseData.Reason.join(', ') },
-            // Assuming Other.Equipment is an array
-            { label: 'Equipment', value: (row) => row.CruiseData.Other.Equipment.join(', ') },
-            { label: 'Summary1', value: (row) => row.CruiseData.Other.Summary1.join(', ') },
-            { label: 'Summary2', value: (row) => row.CruiseData.Other.Summary2.join(', ') },
-            { label: 'DataOwner', value: (row) => row.CruiseData.Other.DataOwner.join(', ') },*/
+            { label: 'Participants_Department', value: (row) => getArrStr(row.Participants.Department) },
+            { label: 'Participants_Name', value: (row) => getArrStr2(row.Participants.Name) },
+            { label: 'Participants_Num', value: (row) => getSplitNum(row.Participants.Name) },
+            // Variable fields like CruiseData, Physical, etc are added dynamically in csvHandler()
             // createdAt and updatedAt
             //{ label: 'CreatedAt', value: 'createdAt' },
             //{ label: 'UpdatedAt', value: 'updatedAt' }
@@ -85,6 +88,34 @@ export default async function csrqry (fastify, opts, next) {
       return out
     }
 
+    const fieldQueryHandler = (append) => {
+      if (typeof append === 'undefined') { return {} }
+      if (append.trim() === '' || append.trim() === '*') { return {} }
+
+      // Define the valid keys
+      const validKeys = ["CruiseData", "Physical", "Biogeochemical", "Biology", "Geology", "Geophysics", "Atmosphere", "Other"]
+      const query = {}
+      const keysToAppend = append.split(',') // Split the keys by comma
+      const validKeysLower = validKeys.map(key => key.toLowerCase())
+
+      // Filter and map valid keys
+      const validAppendedKeys =
+              keysToAppend
+                .map(key => key.trim().toLowerCase())
+                .filter(key => validKeysLower.includes(key))
+                .map(key => validKeys[validKeysLower.indexOf(key)])
+
+      // If there are valid keys remaining, build the $and condition for each key
+      if (validAppendedKeys.length == 0) { return {} }
+
+      query.$and = validAppendedKeys.map((key) => ({
+        [key]: { $exists: true }
+      }))
+      //fastify.log.info("Debug append: " + JSON.stringify(validAppendedKeys) +
+      //                 " with query: " + JSON.stringify(query))
+      return {fieldQry: query, appendKey: validAppendedKeys}
+    }
+
     const getDateTimeFileName = (prefix='csr', ext='.csv', time_enable=true) => {
       const now = new Date()
       const year = now.getFullYear()
@@ -100,11 +131,36 @@ export default async function csrqry (fastify, opts, next) {
       return `${prefix}_${year}-${month}-${day}T${hours}${minutes}${seconds}${ext}`;
     }
 
-    const csvHandler = async (data, filename, reply, format) => {
+    const csvHandler = async (data, filename, reply, format, appendKey=[]) => {
       if (typeof format !== 'undefined' && format.trim().toLowerCase() === 'csv') {
+        let appendFields = [...csrCsvFields]
+        if (appendKey.length > 0) {
+          for (const xkey of appendKey) {
+            if (xkey === 'CruiseData') {
+              //Assuming CruiseData.Item and similar are arrays
+              appendFields =
+                [...appendFields,
+                 ...[{ label: 'Item', value: (row) => getArrStr(row.CruiseData.Item) },
+                     { label: 'CollectionNum', value: (row) => getArrStr(row.CruiseData.CollectionNum) },
+                     { label: 'CollectionOwner', value: (row) => getArrStr(row.CruiseData.CollectionOwner) },
+                     { label: 'ReasonChecked', value: (row) => getArrStr(row.CruiseData.ReasonChecked) },
+                     { label: 'Reason', value: (row) => getArrStr(row.CruiseData.Reason) }]
+                ]
+            } else {
+              appendFields =
+                [...appendFields,
+                 ...[{ label: `${xkey}_Equipment`,value: (row) => getArrStr(row[xkey].Equipment) },
+                     { label: `${xkey}_Summary1`, value: (row) => getArrStr(row[xkey].Summary1) },
+                     { label: `${xkey}_Summary2`, value: (row) => getArrStr(row[xkey].Summary2) },
+                     { label: `${xkey}_DataOwner`,value: (row) => getArrStr(row[xkey].DataOwner) }]
+                ]
+            }
+          }
+        }
+
         try {
           const tmpFile = tmp.fileSync({ postfix: '.csv' }) //path.join(__dirname, filename)
-          await json2CSV(data, tmpFile.name, reply, filename, { fields: csrCsvFields, withBOM: true })
+          await json2CSV(data, tmpFile.name, reply, filename, { fields: appendFields, withBOM: true })
         } catch (err) {
           fastify.log.error(err)
           return reply.send(err)
@@ -123,6 +179,7 @@ export default async function csrqry (fastify, opts, next) {
           type: 'object',
           properties: {
             format: { type: 'string' },
+            append: { type: 'string' }
           }
         },
         response: {
@@ -136,14 +193,22 @@ export default async function csrqry (fastify, opts, next) {
     async function (req, reply) {
       let shipx = uncaseArrMatch(req.params.ship, false, true, false, true, false, false)
       let itemx = uncaseArrMatch(req.params.id, false, true, false, true, false, false)
-      const out = await
-        CSR.find({
-          "CruiseBasicData.ShipName": { $in: shipx },
-          "CruiseBasicData.CruiseID": { $in: itemx }
-        }, {_id: 0 }, sortCond)
+      let qry = {
+            "CruiseBasicData.ShipName": { $in: shipx },
+            "CruiseBasicData.CruiseID": { $in: itemx }
+          }
+      const {fieldQry, appendKey} = fieldQueryHandler(req.query.append)
+      if (fieldQry && Object.keys(fieldQry).length > 0) {
+        //if ('$and' in qry) {
+        //  qry['$and'] = [...qry.$and, ...fieldQry.$and]
+        //} else {
+        qry.$and = fieldQry.$and
+        //}
+      }
 
+      const out = await CSR.find(qry, {_id: 0 }, sortCond)
       //reply.code(200).send(out)
-      csvHandler(out, getDateTimeFileName(), reply, req.query.format)
+      csvHandler(out, getDateTimeFileName(), reply, req.query.format, appendKey)
     })
 
     fastify.get('/', {
@@ -160,7 +225,8 @@ export default async function csrqry (fastify, opts, next) {
             leader: { type: 'string'},
             user: { type: 'string'},
             item: { type: 'string'},
-            format: {type: 'string'}
+            format: {type: 'string'},
+            append: {type: 'string'}
           }
         },
         response: {
@@ -252,16 +318,27 @@ export default async function csrqry (fastify, opts, next) {
                          {"Other.Equipment": { $regex: itemx, $options: "ix"}}]}
         }
       }
+      /* Debug equipment query
       if (Array.isArray(itemx)) {
         fastify.log.info(itemx.join(', '))
       } else {
         fastify.log.info(itemx)
+      } */
+
+      const { fieldQry, appendKey } = fieldQueryHandler(qstr.append)
+      if (fieldQry && Object.keys(fieldQry).length > 0) {
+        if ('$and' in qry) {
+          qry['$and'] = [...qry.$and, ...fieldQry.$and]
+
+        } else {
+          qry = {...qry, ...fieldQry }
+        }
       }
-      fastify.log.info(JSON.stringify(qry))
+      fastify.log.info(JSON.stringify(qry) + " with appendKey: " + JSON.stringify(appendKey))
 
       const out = await CSR.find(qry, {_id: 0 }, sortCond)
       //reply.code(200).send(out)
-      csvHandler(out, getDateTimeFileName(), reply, req.query.format)
+      csvHandler(out, getDateTimeFileName(), reply, req.query.format, appendKey)
     })
 
     const csrDelSchemaObj = {
