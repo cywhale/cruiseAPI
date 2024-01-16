@@ -28,10 +28,9 @@ export default async function csrqry (fastify, opts, next) {
     const getSplitNum = (x) => {
       let str = x
       if (Array.isArray(x)) {
-         str = x.join(',')
+         str = x.join('、') //some names has ',' inside, so cannot join with comma
       }
-      let out = str.split(/,|,\s|、|，/)
-      //if (str.indexOf(',')) { console.log("Debug: ", x, str, out) }
+      let out = str.split(/、/) //split(/,|,\s|、|，/)
       return out.length
     }
 
@@ -269,7 +268,8 @@ export default async function csrqry (fastify, opts, next) {
         itemx = uncaseArrMatch(qstr.start, true, false, false, false, false, false)
         let startd = Date.parse(itemx)
         if (!isNaN(startd)) {
-          after = new Date(+new Date(itemx + ' ' + '00:00:00')  + 8 * 3600 * 1000) //.toISOString()
+          after = new Date(+new Date(itemx)  + 8 * 3600 * 1000) //+ ' ' + '00:00:00' //.toISOString()
+          console.log("Start date: ", itemx, after)
           //qry = {...qry, "CruiseBasicData.StartDate": { $gte: after }} //should be $and with end_date_criteria
         }
       }
@@ -278,7 +278,8 @@ export default async function csrqry (fastify, opts, next) {
         itemx = uncaseArrMatch(qstr.end, true, false, false, false, false, false)
         let endd = Date.parse(itemx)
         if (!isNaN(endd)) {
-          before = new Date(+new Date(itemx + ' ' + '23:59:59')  + 8 * 3600 * 1000) //.toISOString()
+          before = new Date(+new Date(itemx)  + 8 * 3600 * 1000) //+ ' ' + '23:59:59' //.toISOString()
+          console.log("End date: ", itemx, before)
           //qry = {...qry, "CruiseBasicData.StartDate": { $lte: before }}
         }
       }

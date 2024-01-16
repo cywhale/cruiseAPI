@@ -24,7 +24,7 @@
 		"@fastify/env": "^4.3.0",
 		"@fastify/multipart": "^7.7.3",
 		"@fastify/static": "^6.12.0",
-		"@fastify/swagger": "^8.12.1",
+		"@fastify/swagger": "^8.13.0",
 		"@fastify/swagger-ui": "^1.10.2",
 		"@json2csv/node": "^7.0.4",
 		"arraybuffer-xml-parser": "^0.6.0",
@@ -34,7 +34,7 @@
 		"fluent-json-schema": "4.2.0-beta.0",
 		"fs": "0.0.1-security",
 		"knex": "2.5.1",
-		"mongoose": "^7.6.7",
+		"mongoose": "^7.6.8",
 		"mongoose-schema-jsonschema": "^2.1.1",
 		"path": "^0.12.7",
 		"tedious": "16.4.0",
@@ -42,7 +42,7 @@
 	},
 	"devDependencies": {
 		"child_process": "^1.0.2",
-		"esbuild": "^0.19.10",
+		"esbuild": "^0.19.11",
 		"esm": "^3.2.25",
 		"tiny-glob": "^0.2.9"
 	}
