@@ -51,6 +51,7 @@ export default async function csrqry (fastify, opts, next) {
             { label: 'PlanName', value: 'CruiseBasicData.PlanName' },
             { label: 'Technician', value: 'CruiseBasicData.Technician' },
             { label: 'Remark', value: 'CruiseBasicData.Remark' },
+            { label: 'ProjectType', value: (row) => getArrStr(row.CruiseBasicData.ProjectType) },
             // Participants
             { label: 'Participants_Department', value: (row) => getArrStr(row.Participants.Department) },
             { label: 'Participants_Name', value: (row) => getArrStr2(row.Participants.Name) },

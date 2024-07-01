@@ -23,7 +23,8 @@ const csrBasicSchema = new Schema({
       DurationHours: { type: Integer, required: false, default: null },
       PlanName: String,
       Technician: String,
-      Remark: String
+      Remark: String,
+      ProjectType: [{ type: String, required: false, default: [] }] // New field since 202407
 }, { _id : false })
 
 const csrUserSchema = new Schema({
