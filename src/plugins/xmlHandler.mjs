@@ -53,15 +53,17 @@ async function xmlHandler (fastify, opts) {
       } else {
         t1 = data.CruiseBasicData.StartDate.split(/\s+/)
         if (t1[1].indexOf(":") >= 0) {
-          start = new Date(+new Date(t1[0]+' '+ t1[1] + ':00') + 8 * 3600 * 1000).toISOString() //GMT+8 problem
+          //start = new Date(+new Date(t1[0]+' '+ t1[1] + ':00') + 8 * 3600 * 1000).toISOString() //GMT+8 problem
+          start = new Date(+new Date(t1[0]+' '+ t1[1] + ':00')).toISOString() //GMT+8 problem
         } else {
-          start = new Date(+new Date(t1[0]+' '+ t1[1] + ':00:00')  + 8 * 3600 * 1000).toISOString()
+          start = new Date(+new Date(t1[0]+' '+ t1[1] + ':00:00')).toISOString()
         }
         t2 = data.CruiseBasicData.EndDate.split(/\s+/)
         if (t2[1].indexOf(":") >= 0) {
-          end = new Date(+new Date(t2[0]+' '+ t2[1] + ':00') + 8 * 3600 * 1000).toISOString()
+          //end = new Date(+new Date(t2[0]+' '+ t2[1] + ':00') + 8 * 3600 * 1000).toISOString()
+          end = new Date(+new Date(t2[0]+' '+ t2[1] + ':00')).toISOString()
         } else {
-          end = new Date(+new Date(t2[0]+' '+ t2[1] + ':00:00') + 8 * 3600 * 1000).toISOString()
+          end = new Date(+new Date(t2[0]+' '+ t2[1] + ':00:00')).toISOString()
         }
       }
 

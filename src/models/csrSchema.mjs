@@ -58,7 +58,8 @@ const csrSchema = new Schema({
     Geophysics: csrFieldSchema,
     Atmosphere: csrFieldSchema,
     Other: csrFieldSchema
-}, { timestamps: {currentTime: () => new Date(+Date.now()  + 8 * 3600 * 1000)} })
+//}, { timestamps: {currentTime: () => new Date(+Date.now()  + 8 * 3600 * 1000)} })
+}, { timestamps: {currentTime: () => new Date()} })
 
 //const CSR = mongoose.model('csr', crdataSchema, 'csr')
 //export default CSR

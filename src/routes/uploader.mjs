@@ -4,7 +4,7 @@
 //import concatStream from 'concat-stream'
 export const autoPrefix = '/data'
 
-export default async function apirest (fastify, opts, next) {
+export default async function apirest (fastify, opts) {
   const { CSR, onFile } = fastify
 
   fastify.post('/upload', {
@@ -125,5 +125,4 @@ export default async function apirest (fastify, opts, next) {
     }
   )
 */
-  next()
 }

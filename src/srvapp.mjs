@@ -4,7 +4,7 @@ import Static from '@fastify/static'
 import { join } from 'desm'
 import router from './router.mjs'
 
-export default async function (fastify, opts, next) {
+export default async function (fastify, opts) {
   fastify.decorate('conf', {
     timestamp: new Date().toISOString()
   })
@@ -45,11 +45,11 @@ export default async function (fastify, opts, next) {
           `From ${fastify.config.TABLE_NOR1}`
       ).then(data => {
         fastify.log.info('Test SHIPDB first data' + JSON.stringify(data))
-        next()
+        //next()
       })
     } catch(err) {
       fastify.log.error({actor: 'Knex'}, 'Error: Knex for SHIPDB Register failed.' + err)
-      next()
+      //next()
     }
   })
 

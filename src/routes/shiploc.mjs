@@ -1,6 +1,6 @@
 export const autoPrefix = '/ship'
 
-export default async function shiploc (fastify, opts, next) {
+export default async function shiploc (fastify, opts) {
   const shipSchemaObj = {
     type: 'object',
     properties: {
@@ -55,6 +55,4 @@ export default async function shiploc (fastify, opts, next) {
       reply.code(204)
     }
   })
-
-  next()
 }

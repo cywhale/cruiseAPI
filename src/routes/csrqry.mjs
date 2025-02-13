@@ -10,7 +10,7 @@ import //csrSchema,
 
 export const autoPrefix = '/csrqry'
 
-export default async function csrqry (fastify, opts, next) {
+export default async function csrqry (fastify, opts) {
     //const conn = mongoose.createConnection(fastify.config.MONGO_CONNECT)
     const { CSR, json2CSV } = fastify //conn.model('csr', csrSchema, 'csr')
     const sortCond = {sort: {"CruiseBasicData.ShipName": 1, "CruiseBasicData.StartDate": -1}}
@@ -269,7 +269,8 @@ export default async function csrqry (fastify, opts, next) {
         itemx = uncaseArrMatch(qstr.start, true, false, false, false, false, false)
         let startd = Date.parse(itemx)
         if (!isNaN(startd)) {
-          after = new Date(+new Date(itemx)  + 8 * 3600 * 1000) //+ ' ' + '00:00:00' //.toISOString()
+          //after = new Date(+new Date(itemx)  + 8 * 3600 * 1000) //+ ' ' + '00:00:00' //.toISOString() //old
+          after = new Date(itemx)
           console.log("Start date: ", itemx, after)
           //qry = {...qry, "CruiseBasicData.StartDate": { $gte: after }} //should be $and with end_date_criteria
         }
@@ -279,7 +280,8 @@ export default async function csrqry (fastify, opts, next) {
         itemx = uncaseArrMatch(qstr.end, true, false, false, false, false, false)
         let endd = Date.parse(itemx)
         if (!isNaN(endd)) {
-          before = new Date(+new Date(itemx)  + 8 * 3600 * 1000) //+ ' ' + '23:59:59' //.toISOString()
+          //before = new Date(+new Date(itemx)  + 8 * 3600 * 1000) //+ ' ' + '23:59:59' //.toISOString()
+          before = new Date(itemx)
           console.log("End date: ", itemx, before)
           //qry = {...qry, "CruiseBasicData.StartDate": { $lte: before }}
         }
@@ -539,6 +541,4 @@ export default async function csrqry (fastify, opts, next) {
     }, async function(req, reply) {
       MultiDelHandler(req, reply, "updatedAt")
     })
-
-  next()
 }

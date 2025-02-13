@@ -60,9 +60,9 @@ const startServer = async () => {
     if (err) console.error(err)
   })
 
-  await fastify.register(Swagger, apiConf)
-  await fastify.register(SwaggerUI, uiConf)
-  await fastify.register(srvapp)
+  fastify.register(Swagger, apiConf)
+  fastify.register(SwaggerUI, uiConf)
+  fastify.register(srvapp)
 
   fastify.listen({ port: PORT }, function (err, address) {
     if (err) {
