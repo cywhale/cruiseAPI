@@ -225,6 +225,7 @@ export default async function csrqry (fastify, opts) {
             leader: { type: 'string'},
             user: { type: 'string'},
             item: { type: 'string'},
+            plan: { type: 'string'},
             format: {type: 'string'},
             append: {type: 'string'}
           }
@@ -261,6 +262,14 @@ export default async function csrqry (fastify, opts) {
           itemx = uncaseArrMatch(qstr.leader, false, true, false, true, true, false)
           //itemx = leaders.trim().replace(/\.+\s*/g,'(\\.*|\\s*)').replace(/,\s*/,'|')
           qry = {...qry, "CruiseBasicData.LeaderName": { $in: itemx }}
+        }
+      }
+
+      //202503 added query plan name
+      if (typeof qstr.plan !== 'undefined') {
+        if (qstr.plan.trim() !== '' && qstr.plan.trim() !== '*') {
+          itemx = uncaseArrMatch(qstr.plan, false, true, false, true, true, false)
+          qry = {...qry, "CruiseBasicData.PlanName": { $in: itemx }}
         }
       }
 
