@@ -16,6 +16,15 @@ export default async function shiploc (fastify, opts) {
       description: 'Get ship latest location by /ship',
       tags: ['Vessel'],
       params: shipSchemaObj,
+      querystring: {
+        type: 'object',
+        properties: {
+          start: { type: 'string', format: 'date-time', description: 'ISO timestamp (UTC) inclusive lower bound' },
+          end: { type: 'string', format: 'date-time', description: 'ISO timestamp (UTC) inclusive upper bound' },
+          limit: { type: 'integer', minimum: 1, description: 'Maximum number of latest points to return' }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           $id: "#shipLocSchema",
@@ -30,7 +39,7 @@ export default async function shiploc (fastify, opts) {
               latitude: { type: "number" },
               ctime: { type: "string", format: "date-time" },
               updtime: { type: "string", format: "date-time" },
-              source: { type: "string" }
+              //source: { type: "string" }
             }
           }
         }
@@ -39,20 +48,114 @@ export default async function shiploc (fastify, opts) {
   },
   async function(req, reply) {
     const ship = fastify.config[`TABLE_${req.params.ship}`]
-    let qry = 'SELECT TOP 1 lon as "longitude", lat as "latitude", ctime as "ctime", ' +
-          'updtime as "updtime" ' + //, source as "source" ' +
-          `From ${ship}`
-    //fastify.log.info("Query: " + qry)
-    if (ship) {
-      const data = await shipdb.raw(qry)
-      if (req.params.ship !== 'NOR1') {  //Note NOR2, NOR3 is local time, not UTC time (but NOR1 is UTC time), that's confused 202212
-        data[0].ctime = new Date(+new Date(data[0].ctime) - 8 * 3600 * 1000).toISOString()
-      }
-      data[0].updtime = new Date(+new Date(data[0].updtime) - 8 * 3600 * 1000).toISOString()
-      //fastify.log.info("Data: " + JSON.stringify(data))
-      reply.send(data)
-    } else {
+    if (!ship) {
       reply.code(204)
+      return
     }
+
+    const parseIsoDate = (value, label) => {
+      if (!value) return null
+      const parsed = new Date(value)
+      if (Number.isNaN(parsed.getTime())) {
+        reply.code(400).send({ message: `Invalid ${label} parameter` })
+        return null
+      }
+      return parsed
+    }
+
+    const toDbDate = (date) => {
+      if (!date) return null
+      return date
+    }
+
+    const toUtcIso = (value) => {
+      if (!value) return value
+      const parsed = new Date(value)
+      if (Number.isNaN(parsed.getTime())) return value
+      return parsed.toISOString()
+    }
+
+    const { start: startRaw, end: endRaw, limit: limitRaw } = req.query ?? {}
+    const startDate = parseIsoDate(startRaw, 'start')
+    if (startRaw && !startDate) return
+    let endDate = parseIsoDate(endRaw, 'end')
+    if (endRaw && !endDate) return
+
+    let limit = null
+    if (limitRaw !== undefined) {
+      const parsedLimit = Number.parseInt(limitRaw, 10)
+      if (Number.isNaN(parsedLimit) || parsedLimit <= 0) {
+        reply.code(400).send({ message: 'limit must be a positive integer' })
+        return
+      }
+      limit = parsedLimit
+    }
+
+    const now = new Date()
+    let boundedStart = startDate
+    let boundedEnd = endDate
+
+    if (boundedStart && !boundedEnd) {
+      boundedEnd = now
+    }
+
+    if (!boundedStart && boundedEnd) {
+      if (limit === null) {
+        const dayStart = new Date(Date.UTC(
+          boundedEnd.getUTCFullYear(),
+          boundedEnd.getUTCMonth(),
+          boundedEnd.getUTCDate()
+        ))
+        boundedStart = dayStart
+      }
+      boundedEnd = endDate
+    }
+
+    if (boundedStart && boundedEnd && boundedStart > boundedEnd) {
+      reply.code(400).send({ message: 'start must be earlier than end' })
+      return
+    }
+
+    const query = shipdb(ship)
+      .select({
+        longitude: 'lon',
+        latitude: 'lat',
+        ctime: 'ctime',
+        updtime: 'updtime'
+      })
+      .orderBy('ctime', 'desc')
+
+    if (boundedStart || boundedEnd) {
+      const startDb = toDbDate(boundedStart)
+      const endDb = toDbDate(boundedEnd ?? now)
+      if (startDb && endDb) {
+        query.whereBetween('ctime', [startDb, endDb])
+      } else if (startDb) {
+        query.where('ctime', '>=', startDb)
+      } else if (endDb) {
+        query.where('ctime', '<=', endDb)
+      }
+    }
+
+    if (limit) {
+      query.limit(limit)
+    } else if (!boundedStart && !boundedEnd) {
+      query.limit(1)
+    }
+
+    const rows = await query
+    if (!rows || rows.length === 0) {
+      reply.send([])
+      return
+    }
+
+    const normalized = rows.map((row) => {
+      const output = { ...row }
+      output.ctime = toUtcIso(output.ctime)
+      output.updtime = toUtcIso(output.updtime)
+      return output
+    })
+
+    reply.send(normalized)
   })
 }
