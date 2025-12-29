@@ -50,4 +50,5 @@
 **/.testenv.js
 **/.ssologin.js
 **/.yarnrc
-
+**/.venv
+**/.python-version
