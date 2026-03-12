@@ -47,6 +47,22 @@ const csrFieldSchema = new Schema({
       DataOwner: [{type: String}]
 }, { required: false, _id : false })
 
+const csrInstrumentItemSchema = new Schema({
+      key: String,
+      value: String,
+      checkValue: String
+}, { required: false, _id : false })
+
+const csrInstrumentBlockSchema = new Schema({
+      items: [csrInstrumentItemSchema],
+      MalfunctionDescription: { type: String, required: false, default: null },
+      ProcessingDescription: { type: String, required: false, default: null }
+}, { required: false, _id : false })
+
+const csrSimpleInstrumentBlockSchema = new Schema({
+      items: [csrInstrumentItemSchema]
+}, { required: false, _id : false })
+
 const csrSchema = new Schema({
     CruiseBasicData: csrBasicSchema,
     Participants: csrUserSchema,
@@ -57,7 +73,9 @@ const csrSchema = new Schema({
     Geology: csrFieldSchema,
     Geophysics: csrFieldSchema,
     Atmosphere: csrFieldSchema,
-    Other: csrFieldSchema
+    Other: csrFieldSchema,
+    ShipboardInstrument: csrInstrumentBlockSchema,
+    NonshipboardInstrument: csrSimpleInstrumentBlockSchema
 //}, { timestamps: {currentTime: () => new Date(+Date.now()  + 8 * 3600 * 1000)} })
 }, { timestamps: {currentTime: () => new Date()} })
 

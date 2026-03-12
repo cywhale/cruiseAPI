@@ -1,6 +1,7 @@
 import { parse } from 'arraybuffer-xml-parser' //https://github.com/cheminfo/arraybuffer-xml-parser
 import path from 'path'
 import fp from 'fastify-plugin'
+import { normalizeCSRInstruments } from '../module/csrInstrumentNormalizer.mjs'
 //import mongoose from 'mongoose'
 //import csrSchema from '../models/csrSchema.mjs'
 
@@ -8,9 +9,6 @@ async function xmlHandler (fastify, opts) {
   fastify.decorate('onFile', onFile)
 
   async function onFile(part) {
-    //const conn = mongoose.createConnection(fastify.config.MONGO_CONNECT)
-    const { CSR } = fastify //conn.model('csr', csrSchema, 'csr')
-
     const buff = await part.toBuffer()
     const content = buff.toString() //Buffer.from(buff.toString(), 'base64').toString()
     let data, dataFetched = false, arrMode = false //not used here
@@ -95,8 +93,9 @@ async function xmlHandler (fastify, opts) {
         //dynamicTypingNodeValue: false to solve xml parser automatically trim 0057 as 57 for CruiseID problem
         data.CruiseBasicData.CruiseID = data.CruiseBasicData.CruiseID.toString().trim() //convert only digits ID to string
       }
-      //fastify.log.info(`Upload/Before write-in ${part.filename} for ${data.CruiseBasicData.ShipName}:${data.CruiseBasicData.CruiseID} at ${new Date().toISOString()}`)
-      //await CSR.create(data) //move to src/router.mjs write-in when onSend to do check logic 202306
+    }
+    if (dataFetched) {
+      normalizeCSRInstruments(data)
     }
     if (dataFetched) { part.value = data }
   }
@@ -105,4 +104,3 @@ async function xmlHandler (fastify, opts) {
 export default fp(xmlHandler, {
   name: 'xmlHandler'
 })
-
