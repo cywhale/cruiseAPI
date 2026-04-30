@@ -55,6 +55,7 @@ const startServer = async () => {
       .prop('TABLE_NOR1', S.string().required())
       .prop('TABLE_NOR2', S.string().required())
       .prop('TABLE_NOR3', S.string().required())
+      .prop('TABLE_LGD', S.string().required())
       .valueOf()
   }).ready((err) => {
     if (err) console.error(err)

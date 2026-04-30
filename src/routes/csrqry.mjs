@@ -7,6 +7,11 @@ import tmp from 'tmp'
 //import path from 'path'
 import //csrSchema,
        {csrJsonSchema} from '../models/csrSchema.mjs'
+import {
+  formatCSRDateFieldsForOutput,
+  formatDateWithOffset,
+  parseTimezoneOffset
+} from '../module/timezoneFormatter.mjs'
 
 export const autoPrefix = '/csrqry'
 
@@ -34,6 +39,11 @@ export default async function csrqry (fastify, opts) {
       return out.length
     }
 
+    const formatCsvDate = (value, offsetMinutes) => {
+      if (offsetMinutes === undefined || offsetMinutes === null) return value
+      return formatDateWithOffset(value, offsetMinutes)
+    }
+
     const csrCsvFields = [
             { label: 'ShipName', value: 'CruiseBasicData.ShipName' },
             { label: 'CruiseID', value: 'CruiseBasicData.CruiseID' },
@@ -42,8 +52,8 @@ export default async function csrqry (fastify, opts) {
             { label: 'FarestDistance', value: 'CruiseBasicData.FarestDistance' },
             { label: 'TotalDistance', value: 'CruiseBasicData.TotalDistance' },
             { label: 'FuelConsumption', value: 'CruiseBasicData.FuelConsumption' },
-            { label: 'StartDate', value: 'CruiseBasicData.StartDate' },
-            { label: 'EndDate', value: 'CruiseBasicData.EndDate' },
+            { label: 'StartDate', value: (row) => formatCsvDate(row.CruiseBasicData.StartDate, row.__tzOffsetMinutes) },
+            { label: 'EndDate', value: (row) => formatCsvDate(row.CruiseBasicData.EndDate, row.__tzOffsetMinutes) },
             { label: 'StartPort', value: 'CruiseBasicData.StartPort' },
             { label: 'EndPort', value: 'CruiseBasicData.EndPort' },
             { label: 'DurationDays', value: 'CruiseBasicData.DurationDays' },
@@ -131,9 +141,30 @@ export default async function csrqry (fastify, opts) {
       return `${prefix}_${year}-${month}-${day}T${hours}${minutes}${seconds}${ext}`;
     }
 
-    const csvHandler = async (data, filename, reply, format, appendKey=[]) => {
+    const parseTimezoneQuery = (tz, reply) => {
+      const offsetMinutes = parseTimezoneOffset(tz)
+      if (offsetMinutes === undefined) {
+        reply.code(400).send({ Error: 'Invalid tz parameter. Use formats like +08:00, -05:30, 8, or -8.' })
+        return undefined
+      }
+      return offsetMinutes
+    }
+
+    const withTimezoneContext = (data, offsetMinutes) => {
+      if (offsetMinutes === null || offsetMinutes === undefined) return data
+      return data.map((record) => {
+        const output = typeof record.toObject === 'function'
+          ? record.toObject({ depopulate: true })
+          : { ...record }
+        output.__tzOffsetMinutes = offsetMinutes
+        return output
+      })
+    }
+
+    const csvHandler = async (data, filename, reply, format, appendKey=[], offsetMinutes=null) => {
       if (typeof format !== 'undefined' && format.trim().toLowerCase() === 'csv') {
         let appendFields = [...csrCsvFields]
+        const csvData = withTimezoneContext(data, offsetMinutes)
         if (appendKey.length > 0) {
           for (const xkey of appendKey) {
             if (xkey === 'CruiseData') {
@@ -160,13 +191,13 @@ export default async function csrqry (fastify, opts) {
 
         try {
           const tmpFile = tmp.fileSync({ postfix: '.csv' }) //path.join(__dirname, filename)
-          await json2CSV(data, tmpFile.name, reply, filename, { fields: appendFields, withBOM: true })
+          await json2CSV(csvData, tmpFile.name, reply, filename, { fields: appendFields, withBOM: true })
         } catch (err) {
           fastify.log.error(err)
           return reply.send(err)
         }
       } else {
-        return reply.code(200).send(data)
+        return reply.code(200).send(formatCSRDateFieldsForOutput(data, offsetMinutes))
       }
     }
 
@@ -179,7 +210,11 @@ export default async function csrqry (fastify, opts) {
           type: 'object',
           properties: {
             format: { type: 'string' },
-            append: { type: 'string' }
+            append: { type: 'string' },
+            tz: {
+              description: 'Timezone offset for StartDate/EndDate output, e.g. +08:00, -05:30, 8, -8. Defaults to UTC.',
+              anyOf: [{ type: 'string' }, { type: 'number' }, { type: 'integer' }]
+            }
           }
         },
         response: {
@@ -207,8 +242,10 @@ export default async function csrqry (fastify, opts) {
       }
 
       const out = await CSR.find(qry, {_id: 0 }, sortCond)
+      const offsetMinutes = parseTimezoneQuery(req.query.tz, reply)
+      if (offsetMinutes === undefined) return
       //reply.code(200).send(out)
-      csvHandler(out, getDateTimeFileName(), reply, req.query.format, appendKey)
+      csvHandler(out, getDateTimeFileName(), reply, req.query.format, appendKey, offsetMinutes)
     })
 
     fastify.get('/', {
@@ -227,7 +264,11 @@ export default async function csrqry (fastify, opts) {
             item: { type: 'string'},
             plan: { type: 'string'},
             format: {type: 'string'},
-            append: {type: 'string'}
+            append: {type: 'string'},
+            tz: {
+              description: 'Timezone offset for StartDate/EndDate output, e.g. +08:00, -05:30, 8, -8. Defaults to UTC.',
+              anyOf: [{ type: 'string' }, { type: 'number' }, { type: 'integer' }]
+            }
           }
         },
         response: {
@@ -350,8 +391,10 @@ export default async function csrqry (fastify, opts) {
       fastify.log.info(JSON.stringify(qry) + " with appendKey: " + JSON.stringify(appendKey))
 
       const out = await CSR.find(qry, {_id: 0 }, sortCond)
+      const offsetMinutes = parseTimezoneQuery(req.query.tz, reply)
+      if (offsetMinutes === undefined) return
       //reply.code(200).send(out)
-      csvHandler(out, getDateTimeFileName(), reply, req.query.format, appendKey)
+      csvHandler(out, getDateTimeFileName(), reply, req.query.format, appendKey, offsetMinutes)
     })
 
     const csrDelSchemaObj = {

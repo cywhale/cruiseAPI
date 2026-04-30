@@ -44,6 +44,7 @@
 **/*.cert
 **/.env
 **/.cache
+.codex
 **/.*.login.*
 **/.setting.*
 **/size-plugin.json
